@@ -103,7 +103,7 @@
     
     <script>
         // Google Sheets API configuration
-const scriptURL = 'https://script.google.com/macros/s/AKfycbx46i3IAl4j2pcgcbtTxbGdZXrZwwDxXsO1femdMzrG8A72bi_Y4R2niVcEdoT1Mw1g/exec'; // Replace with your actual script URL
+const scriptURL = 'https://script.google.com/macros/s/AKfycbxCIL0VpCIcvfAeyX12ammFGBv-ybOyGr5b72G8of9VBDRm-fQWmAXpbfLMRJptvlbM/exec'; // Replace with your actual script URL
 let warrantyData = [];
 
 // DOM Elements
@@ -410,50 +410,14 @@ function showNotification(message, isError = false) {
 
     </script>
         <script>
-        async function submitWarrantyForm() {
-          try {
-            const formData = {
-              customerName: document.getElementById('customerName').value,
-              product: document.getElementById('product').value,
-              saleDate: document.getElementById('saleDate').value,
-              warrantyPeriod: document.getElementById('warrantyPeriod').value,
-              expiryDate: document.getElementById('expiryDate').value
-            };
-      
-            const response = await fetch(scriptURL, {
-              method: 'POST',
-              body: JSON.stringify(formData),
-              headers: {
-                'Content-Type': 'application/json'
-              }
-            });
-      
-            if (!response.ok) {
-              throw new Error('Network response was not ok');
-            }
-      
-            const result = await response.json();
-            if (result.status === 'error') {
-              throw new Error(result.message);
-            }
-      
-            showNotification('Warranty record added successfully!');
-            warrantyForm.reset();
-      
-            // Refresh data if on view tab
-            if (document.querySelector('.tab.active').getAttribute('data-tab') === 'view') {
-              loadWarrantyData();
-            }
-          } catch (error) {
-            showNotification(`Error: ${error.message}`, true);
-          }
-        }
-      
-        // Attach to form submit
-        warrantyForm.addEventListener('submit', function (e) {
-          e.preventDefault();
-          submitWarrantyForm();
-        });
+fetch(SCRIPT_URL, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify(formData)
+})
+
       </script>        
 </body>
 </html>
