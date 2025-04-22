@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Accessories Warranty Tracker</title>
+    <link rel="icon" href="data:,"> <!-- Prevents favicon 404 error -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Mobile Accessories Warranty Tracker</h1>
+            <p class="subtitle">Track and manage warranty claims with ease</p>
+        </header>
+        
+        <div class="tabs">
+            <button class="tab active" data-tab="add">Add New Sale</button>
+            <button class="tab" data-tab="search">Search Warranty</button>
+            <button class="tab" data-tab="view">View All</button>
+        </div>
+        
+        <div id="add" class="tab-content active">
+            <div class="form-container">
+                <h2>Add New Sale Record</h2>
+                <form id="warrantyForm">
+                    <div class="form-group">
+                        <label for="customerName">Customer Name</label>
+                        <input type="text" id="customerName" required placeholder="Enter customer name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="product">Product</label>
+                        <input type="text" id="product" required placeholder="Enter product name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="saleDate">Sale Date</label>
+                        <input type="date" id="saleDate" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="warrantyPeriod">Warranty Period (months)</label>
+                        <select id="warrantyPeriod" required>
+                            <option value="">Select warranty period</option>
+                            <option value="1">1 Month</option>
+                            <option value="3">3 Months</option>
+                            <option value="6">6 Months</option>
+                            <option value="12">12 Months</option>
+                            <option value="24">24 Months</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn pulse">Save Warranty Record</button>
+                </form>
+            </div>
+        </div>
+        
+        <div id="search" class="tab-content">
+            <div class="form-container">
+                <h2>Search Warranty Information</h2>
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="Search by customer name, product or phone number">
+                    <button id="searchBtn" class="btn">Search</button>
+                </div>
+                
+                <div id="searchResults">
+                    <!-- Results will be displayed here -->
+                </div>
+            </div>
+        </div>
+        
+        <div id="view" class="tab-content">
+            <div class="form-container">
+                <h2>All Warranty Records</h2>
+                <div class="search-container">
+                    <input type="text" id="filterInput" placeholder="Filter records...">
+                    <button id="filterBtn" class="btn">Filter</button>
+                    <button id="refreshBtn" class="btn btn-secondary">Refresh</button>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="warranty-table">
+                        <thead>
+                            <tr>
+                                <th>Customer Name</th>
+                                <th>Product</th>
+                                <th>Sale Date</th>
+                                <th>Warranty Expiry</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="warrantyTableBody">
+                            <!-- Data will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification"></div>
+    
+    <script>
+        // Google Sheets API configuration
+const scriptURL = 'https://script.google.com/macros/s/AKfycbzb470sDxcq6f85GGnJ3aIzJb_5XG0arW5K64Qt5zNYmFigNhBrT2vXAeu1zzvaYI83/exec'; // Replace with your actual script URL
+let warrantyData = [];
+
+// DOM Elements
+const tabs = document.querySelectorAll('.tab');
+const tabContents = document.querySelectorAll('.tab-content');
+const warrantyForm = document.getElementById('warrantyForm');
+const searchInput = document.getElementById('searchInput');
+const searchBtn = document.getElementById('searchBtn');
+const searchResults = document.getElementById('searchResults');
+const filterInput = document.getElementById('filterInput');
+const filterBtn = document.getElementById('filterBtn');
+const refreshBtn = document.getElementById('refreshBtn');
+const warrantyTableBody = document.getElementById('warrantyTableBody');
+const notification = document.getElementById('notification');
+
+// Tab switching
+tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+        const tabId = tab.getAttribute('data-tab');
+        
+        // Update active tab
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        
+        // Update active content
+        tabContents.forEach(content => content.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        
+        // If viewing all records, refresh data
+        if (tabId === 'view') {
+            loadWarrantyData();
+        }
+    });
+});
+
+// Form submission
+warrantyForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const customerName = document.getElementById('customerName').value;
+    const product = document.getElementById('product').value;
+    const saleDate = document.getElementById('saleDate').value;
+    const warrantyPeriod = document.getElementById('warrantyPeriod').value;
+    
+    // Calculate warranty expiry date
+    const saleDateObj = new Date(saleDate);
+    const expiryDateObj = new Date(saleDateObj);
+    expiryDateObj.setMonth(expiryDateObj.getMonth() + parseInt(warrantyPeriod));
+    
+    const expiryDate = expiryDateObj.toISOString().split('T')[0];
+    
+    const formData = {
+        customerName,
+        product,
+        saleDate,
+        warrantyPeriod,
+        expiryDate
+    };
+    
+    try {
+        showNotification('Saving warranty record...');
+        
+        const response = await fetch(scriptURL, {
+            method: 'POST',
+            body: JSON.stringify(formData),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const result = await response.json();
+        
+        if (result.status === 'error') {
+            throw new Error(result.message);
+        }
+        
+        showNotification('Warranty record added successfully!');
+        warrantyForm.reset();
+        
+        // Refresh data if on view tab
+        if (document.querySelector('.tab.active').getAttribute('data-tab') === 'view') {
+            loadWarrantyData();
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification(`Error saving record: ${error.message}`, true);
+    }
+});
+
+// Search functionality
+searchBtn.addEventListener('click', () => {
+    const searchTerm = searchInput.value.trim().toLowerCase();
+    
+    if (searchTerm === '') {
+        searchResults.innerHTML = '<p class="no-results">Please enter a search term</p>';
+        return;
+    }
+    
+    const filteredData = warrantyData.filter(item => 
+        item.customerName?.toLowerCase().includes(searchTerm) || 
+        item.product?.toLowerCase().includes(searchTerm)
+    );
+    
+    displaySearchResults(filteredData);
+});
+
+// Filter functionality
+filterBtn.addEventListener('click', () => {
+    const filterTerm = filterInput.value.trim().toLowerCase();
+    filterWarrantyData(filterTerm);
+});
+
+// Refresh data
+refreshBtn.addEventListener('click', () => {
+    loadWarrantyData();
+});
+
+// Load initial data
+document.addEventListener('DOMContentLoaded', () => {
+    loadWarrantyData();
+});
+
+// Main data loading function
+async function loadWarrantyData() {
+    try {
+        showNotification('Loading warranty data...');
+        
+        // First try regular fetch with CORS
+        try {
+            const response = await fetch(`${scriptURL}?rand=${Math.random()}`, {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                warrantyData = await response.json();
+                displayAllWarrantyData(warrantyData);
+                showNotification('Data loaded successfully');
+                return;
+            }
+        } catch (fetchError) {
+            console.log('Regular fetch failed, trying JSONP...', fetchError);
+        }
+        
+        // If fetch fails, try JSONP approach
+        await loadDataWithJsonp();
+        
+    } catch (error) {
+        console.error('Error loading warranty data:', error);
+        showNotification('Error loading warranty data!', true);
+    }
+}
+
+// JSONP fallback for loading data
+function loadDataWithJsonp() {
+    return new Promise((resolve, reject) => {
+        const callbackName = 'handleWarrantyData' + new Date().getTime();
+        const url = `${scriptURL}?callback=${callbackName}&rand=${Math.random()}`;
+        
+        const script = document.createElement('script');
+        script.src = url;
+        
+        window[callbackName] = function(data) {
+            warrantyData = data;
+            displayAllWarrantyData(warrantyData);
+            document.body.removeChild(script);
+            delete window[callbackName];
+            resolve();
+        };
+        
+        script.onerror = () => {
+            document.body.removeChild(script);
+            delete window[callbackName];
+            reject(new Error('Failed to load data via JSONP'));
+        };
+        
+        document.body.appendChild(script);
+        
+        // Set timeout in case the request hangs
+        setTimeout(() => {
+            if (window[callbackName]) {
+                document.body.removeChild(script);
+                delete window[callbackName];
+                reject(new Error('Timeout loading data'));
+            }
+        }, 10000);
+    });
+}
+
+// Display all warranty data in table
+function displayAllWarrantyData(data) {
+    warrantyTableBody.innerHTML = '';
+    
+    if (!data || data.length === 0) {
+        warrantyTableBody.innerHTML = '<tr><td colspan="5" class="no-results">No warranty records found</td></tr>';
+        return;
+    }
+    
+    data.forEach(item => {
+        const row = document.createElement('tr');
+        const today = new Date();
+        const expiryDate = new Date(item.expiryDate);
+        const isExpired = today > expiryDate;
+        const daysRemaining = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+        
+        row.innerHTML = `
+            <td>${item.customerName || 'N/A'}</td>
+            <td>${item.product || 'N/A'}</td>
+            <td>${formatDate(item.saleDate)}</td>
+            <td>${formatDate(item.expiryDate)}</td>
+            <td>
+                <span class="status ${isExpired ? 'expired' : 'active'}">
+                    ${isExpired ? 'Expired' : `Active (${daysRemaining} days left)`}
+                </span>
+            </td>
+        `;
+        
+        warrantyTableBody.appendChild(row);
+    });
+}
+
+// Filter warranty data
+function filterWarrantyData(filterTerm) {
+    if (!filterTerm) {
+        displayAllWarrantyData(warrantyData);
+        return;
+    }
+    
+    const filteredData = warrantyData.filter(item => 
+        item.customerName?.toLowerCase().includes(filterTerm) || 
+        item.product?.toLowerCase().includes(filterTerm)
+    );
+    
+    displayAllWarrantyData(filteredData);
+}
+
+// Display search results
+function displaySearchResults(results) {
+    if (!results || results.length === 0) {
+        searchResults.innerHTML = '<p class="no-results">No matching records found</p>';
+        return;
+    }
+    
+    let html = '<div class="results-container">';
+    
+    results.forEach(item => {
+        const today = new Date();
+        const expiryDate = new Date(item.expiryDate);
+        const isExpired = today > expiryDate;
+        const daysRemaining = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+        
+        html += `
+            <div class="result-card">
+                <h3>${item.customerName || 'N/A'}</h3>
+                <p><strong>Product:</strong> ${item.product || 'N/A'}</p>
+                <p><strong>Sale Date:</strong> ${formatDate(item.saleDate)}</p>
+                <p><strong>Warranty Expiry:</strong> ${formatDate(item.expiryDate)}</p>
+                <p><strong>Status:</strong> 
+                    <span class="status ${isExpired ? 'expired' : 'active'}">
+                        ${isExpired ? 'Expired' : `Active (${daysRemaining} days left)`}
+                    </span>
+                </p>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    searchResults.innerHTML = html;
+}
+
+// Format date for display
+function formatDate(dateString) {
+    if (!dateString) return 'N/A';
+    
+    try {
+        const options = { year: 'numeric', month: 'short', day: 'numeric' };
+        return new Date(dateString).toLocaleDateString('en-US', options);
+    } catch (e) {
+        return dateString; // Return raw string if date parsing fails
+    }
+}
+
+// Show notification to user
+function showNotification(message, isError = false) {
+    notification.textContent = message;
+    notification.className = 'notification';
+    notification.classList.add(isError ? 'error' : 'show');
+    
+    if (isError) {
+        notification.classList.add('error');
+    }
+    
+    notification.classList.add('show');
+    
+    setTimeout(() => {
+        notification.classList.remove('show');
+    }, 3000);
+}
+
+    </script>
+    <script>const response = await fetch(scriptURL, {
+        method: 'POST',
+        body: JSON.stringify(formData),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const result = await response.json();
+      if (result.status === 'error') {
+        throw new Error(result.message);
+      }
+      showNotification('Warranty record added successfully!');
+      warrantyForm.reset();
+      // Refresh data if on view tab
+      if (document.querySelector('.tab.active').getAttribute('data-tab') === 'view') {
+        loadWarrantyData();
+      }
+    </script>      
+</body>
+</html>
