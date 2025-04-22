@@ -409,26 +409,51 @@ function showNotification(message, isError = false) {
 }
 
     </script>
-    <script>const response = await fetch(scriptURL, {
-        method: 'POST',
-        body: JSON.stringify(formData),
-        headers: {
-          'Content-Type': 'application/json'
+        <script>
+        async function submitWarrantyForm() {
+          try {
+            const formData = {
+              customerName: document.getElementById('customerName').value,
+              product: document.getElementById('product').value,
+              saleDate: document.getElementById('saleDate').value,
+              warrantyPeriod: document.getElementById('warrantyPeriod').value,
+              expiryDate: document.getElementById('expiryDate').value
+            };
+      
+            const response = await fetch(scriptURL, {
+              method: 'POST',
+              body: JSON.stringify(formData),
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            });
+      
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+      
+            const result = await response.json();
+            if (result.status === 'error') {
+              throw new Error(result.message);
+            }
+      
+            showNotification('Warranty record added successfully!');
+            warrantyForm.reset();
+      
+            // Refresh data if on view tab
+            if (document.querySelector('.tab.active').getAttribute('data-tab') === 'view') {
+              loadWarrantyData();
+            }
+          } catch (error) {
+            showNotification(`Error: ${error.message}`, true);
+          }
         }
-      });
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      const result = await response.json();
-      if (result.status === 'error') {
-        throw new Error(result.message);
-      }
-      showNotification('Warranty record added successfully!');
-      warrantyForm.reset();
-      // Refresh data if on view tab
-      if (document.querySelector('.tab.active').getAttribute('data-tab') === 'view') {
-        loadWarrantyData();
-      }
-    </script>      
+      
+        // Attach to form submit
+        warrantyForm.addEventListener('submit', function (e) {
+          e.preventDefault();
+          submitWarrantyForm();
+        });
+      </script>        
 </body>
 </html>
