@@ -410,14 +410,14 @@ function showNotification(message, isError = false) {
 
     </script>
         <script>
-fetch(SCRIPT_URL, {
+const scriptURL = 'https://script.google.com/macros/s/AKfycbx46i3IAl4j2pcgcbtTxbGdZXrZwwDxXsO1femdMzrG8A72bi_Y4R2niVcEdoT1Mw1g/exec';
+
+fetch(scriptURL, {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json'
   },
   body: JSON.stringify(formData)
-})
-
-      </script>        
+})      </script>        
 </body>
 </html>
