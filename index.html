@@ -4,417 +4,530 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mobile Accessories Warranty Tracker</title>
-    <link rel="icon" href="data:,"> <!-- Prevents favicon 404 error -->
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <div class="container">
         <header>
             <h1>Mobile Accessories Warranty Tracker</h1>
-            <p class="subtitle">Track and manage warranty claims with ease</p>
+            <p>Simple warranty management for your shop</p>
         </header>
         
-        <div class="tabs">
-            <button class="tab active" data-tab="add">Add New Sale</button>
-            <button class="tab" data-tab="search">Search Warranty</button>
-            <button class="tab" data-tab="view">View All</button>
-        </div>
-        
-        <div id="add" class="tab-content active">
-            <div class="form-container">
-                <h2>Add New Sale Record</h2>
-                <form id="warrantyForm">
-                    <div class="form-group">
-                        <label for="customerName">Customer Name</label>
-                        <input type="text" id="customerName" required placeholder="Enter customer name">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="product">Product</label>
-                        <input type="text" id="product" required placeholder="Enter product name">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="saleDate">Sale Date</label>
-                        <input type="date" id="saleDate" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="warrantyPeriod">Warranty Period (months)</label>
-                        <select id="warrantyPeriod" required>
-                            <option value="">Select warranty period</option>
-                            <option value="1">1 Month</option>
-                            <option value="3">3 Months</option>
-                            <option value="6">6 Months</option>
-                            <option value="12">12 Months</option>
-                            <option value="24">24 Months</option>
-                        </select>
-                    </div>
-                    
-                    <button type="submit" class="btn pulse">Save Warranty Record</button>
-                </form>
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Register New Product</h2>
+                <i class="fas fa-mobile-alt"></i>
             </div>
-        </div>
-        
-        <div id="search" class="tab-content">
-            <div class="form-container">
-                <h2>Search Warranty Information</h2>
-                <div class="search-container">
-                    <input type="text" id="searchInput" placeholder="Search by customer name, product or phone number">
-                    <button id="searchBtn" class="btn">Search</button>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="customerName">Customer Name</label>
+                    <input type="text" id="customerName" required placeholder="Customer's full name">
                 </div>
                 
-                <div id="searchResults">
-                    <!-- Results will be displayed here -->
-                </div>
-            </div>
-        </div>
-        
-        <div id="view" class="tab-content">
-            <div class="form-container">
-                <h2>All Warranty Records</h2>
-                <div class="search-container">
-                    <input type="text" id="filterInput" placeholder="Filter records...">
-                    <button id="filterBtn" class="btn">Filter</button>
-                    <button id="refreshBtn" class="btn btn-secondary">Refresh</button>
+                <div class="form-group">
+                    <label for="product">Product</label>
+                    <input type="text" id="product" required placeholder="Product name and model">
                 </div>
                 
-                <div class="table-responsive">
-                    <table class="warranty-table">
-                        <thead>
-                            <tr>
-                                <th>Customer Name</th>
-                                <th>Product</th>
-                                <th>Sale Date</th>
-                                <th>Warranty Expiry</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="warrantyTableBody">
-                            <!-- Data will be loaded here -->
-                        </tbody>
-                    </table>
+                <div class="form-group">
+                    <label for="saleDate">Sale Date</label>
+                    <input type="date" id="saleDate" required>
                 </div>
+                
+                <div class="form-group">
+                    <label for="warrantyPeriod">Warranty Period (months)</label>
+                    <input type="number" id="warrantyPeriod" required min="1" value="12">
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Register Product
+                </button>
+            </form>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Warranty Products</h2>
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" id="exportCsv">
+                        <i class="fas fa-file-import"></i> Export CSV
+                    </button>
+                    <button class="btn btn-secondary" id="importCsv">
+                        <i class="fas fa-file-import"></i> Import CSV
+                    </button>
+                    <input type="file" id="csvFileInput" accept=".csv" style="display: none;">
+                    <button class="btn btn-secondary" id="saveToSheets">
+                        <i class="fas fa-cloud-upload-alt"></i> Save to Google Sheets
+                    </button>
+                    <button class="btn btn-secondary" id="loadFromSheets">
+                        <i class="fas fa-cloud-download-alt"></i> Load from Google Sheets
+                    </button>
+                </div>
+            </div>
+            
+            <div class="search-container">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search by customer or product">
+                <button class="search-btn" id="searchBtn">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+            
+            <div class="table-responsive">
+                <table id="productsTable">
+                    <thead>
+                        <tr>
+                            <th>Customer</th>
+                            <th>Product</th>
+                            <th>Sale Date</th>
+                            <th>Warranty</th>
+                            <th>Expiry Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsTableBody">
+                        <!-- Products will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="empty-state" id="emptyProductsState">
+                <div class="empty-icon">
+                    <i class="fas fa-box-open"></i>
+                </div>
+                <div class="empty-text">No products registered yet</div>
+                <p>Register your first product to get started</p>
             </div>
         </div>
     </div>
     
-    <div class="notification" id="notification"></div>
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Google Authentication Required</h3>
+            <p id="authMessage">Please sign in with Google to access your sheets.</p>
+            <button id="authButton" class="btn btn-primary">
+                <i class="fab fa-google"></i> Sign in with Google
+            </button>
+        </div>
+    </div>
     
-    <script>
-        // Google Sheets API configuration
-const scriptURL = 'https://script.google.com/macros/s/AKfycbxCIL0VpCIcvfAeyX12ammFGBv-ybOyGr5b72G8of9VBDRm-fQWmAXpbfLMRJptvlbM/exec'; // Replace with your actual script URL
-let warrantyData = [];
+    <div id="toast" class="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Product registered successfully!</span>
+    </div>
+<script>document.addEventListener('DOMContentLoaded', function() {
+    // Initialize local storage if empty
+    if (!localStorage.getItem('warrantyProducts')) {
+        localStorage.setItem('warrantyProducts', JSON.stringify([]));
+    }
 
-// DOM Elements
-const tabs = document.querySelectorAll('.tab');
-const tabContents = document.querySelectorAll('.tab-content');
-const warrantyForm = document.getElementById('warrantyForm');
-const searchInput = document.getElementById('searchInput');
-const searchBtn = document.getElementById('searchBtn');
-const searchResults = document.getElementById('searchResults');
-const filterInput = document.getElementById('filterInput');
-const filterBtn = document.getElementById('filterBtn');
-const refreshBtn = document.getElementById('refreshBtn');
-const warrantyTableBody = document.getElementById('warrantyTableBody');
-const notification = document.getElementById('notification');
-
-// Tab switching
-tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-        const tabId = tab.getAttribute('data-tab');
-        
-        // Update active tab
-        tabs.forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        
-        // Update active content
-        tabContents.forEach(content => content.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
-        
-        // If viewing all records, refresh data
-        if (tabId === 'view') {
-            loadWarrantyData();
-        }
-    });
-});
-
-// Form submission
-warrantyForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
+    // DOM Elements
+    const registerForm = document.getElementById('registerForm');
+    const searchBtn = document.getElementById('searchBtn');
+    const importCsvBtn = document.getElementById('importCsv');
+    const csvFileInput = document.getElementById('csvFileInput');
+    const saveToSheetsBtn = document.getElementById('saveToSheets');
+    const loadFromSheetsBtn = document.getElementById('loadFromSheets');
+    const authModal = document.getElementById('authModal');
+    const authButton = document.getElementById('authButton');
+    const closeModal = document.querySelector('.close');
     
-    const customerName = document.getElementById('customerName').value;
-    const product = document.getElementById('product').value;
-    const saleDate = document.getElementById('saleDate').value;
-    const warrantyPeriod = document.getElementById('warrantyPeriod').value;
+    // Initialize Google API
+    let gapiInitialized = false;
+    let googleAuth = null;
     
-    // Calculate warranty expiry date
-    const saleDateObj = new Date(saleDate);
-    const expiryDateObj = new Date(saleDateObj);
-    expiryDateObj.setMonth(expiryDateObj.getMonth() + parseInt(warrantyPeriod));
-    
-    const expiryDate = expiryDateObj.toISOString().split('T')[0];
-    
-    const formData = {
-        customerName,
-        product,
-        saleDate,
-        warrantyPeriod,
-        expiryDate
+    // Configuration - REPLACE WITH YOUR ACTUAL VALUES
+    const CONFIG = {
+        apiKey: 'AIzaSyBtIb_OEZXjsex6BlPZsk35ISO3CVKV2io',
+        clientId: '80785123608-hebadvt7k7pcjnthnvkbtodc9i328le0.apps.googleusercontent.com',
+        spreadsheetId: '1okznadJPiXLygebie8jLStKPF6WUoDsrqqDAFogLS7o',
+        scopes: 'https://www.googleapis.com/auth/spreadsheets'
     };
-    
-    try {
-        showNotification('Saving warranty record...');
+
+    // Event Listeners
+    registerForm.addEventListener('submit', handleFormSubmit);
+    searchBtn.addEventListener('click', handleSearch);
+    importCsvBtn.addEventListener('click', () => csvFileInput.click());
+    csvFileInput.addEventListener('change', handleCsvImport);
+    saveToSheetsBtn.addEventListener('click', saveToGoogleSheets);
+    loadFromSheetsBtn.addEventListener('click', loadFromGoogleSheets);
+    authButton.addEventListener('click', handleAuthClick);
+    closeModal.addEventListener('click', () => authModal.style.display = 'none');
+
+    // Load initial data
+    loadProductsTable();
+
+    // Initialize Google API
+    initGoogleAPI().catch(err => {
+        console.error('Failed to initialize Google API:', err);
+    });
+
+    // Helper Functions
+    function formatDate(date) {
+        const options = { year: 'numeric', month: 'short', day: 'numeric' };
+        return date.toLocaleDateString(undefined, options);
+    }
+
+    function getWarrantyStatus(expiryDate) {
+        const today = new Date();
+        const timeDiff = expiryDate.getTime() - today.getTime();
+        const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
         
-        const response = await fetch(scriptURL, {
-            method: 'POST',
-            body: JSON.stringify(formData),
-            headers: {
-                'Content-Type': 'application/json'
+        if (daysDiff <= 0) return 'expired';
+        if (daysDiff <= 30) return 'warning';
+        return 'active';
+    }
+
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toastMessage');
+        
+        toastMessage.textContent = message;
+        toast.className = `toast ${type}`;
+        toast.style.display = 'flex';
+        
+        // Set icon based on type
+        const icon = toast.querySelector('i');
+        icon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+        
+        // Hide after 3 seconds
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 3000);
+    }
+
+    // Form Submission
+    function handleFormSubmit(e) {
+        e.preventDefault();
+        
+        // Get form values
+        const customerName = document.getElementById('customerName').value;
+        const product = document.getElementById('product').value;
+        const saleDate = document.getElementById('saleDate').value;
+        const warrantyPeriod = parseInt(document.getElementById('warrantyPeriod').value);
+        
+        // Calculate expiry date
+        const saleDateObj = new Date(saleDate);
+        const expiryDateObj = new Date(saleDateObj);
+        expiryDateObj.setMonth(saleDateObj.getMonth() + warrantyPeriod);
+        
+        // Create product object
+        const productData = {
+            id: Date.now().toString(),
+            customerName,
+            product,
+            saleDate,
+            formattedSaleDate: formatDate(saleDateObj),
+            warrantyPeriod,
+            expiryDate: expiryDateObj.toISOString().split('T')[0],
+            formattedExpiryDate: formatDate(expiryDateObj),
+            status: getWarrantyStatus(expiryDateObj)
+        };
+        
+        // Save to local storage
+        const products = JSON.parse(localStorage.getItem('warrantyProducts'));
+        products.push(productData);
+        localStorage.setItem('warrantyProducts', JSON.stringify(products));
+        
+        // Show success message
+        showToast('Product registered successfully!', 'success');
+        
+        // Reset form
+        this.reset();
+        document.getElementById('warrantyPeriod').value = '12';
+        
+        // Reload table
+        loadProductsTable();
+    }
+
+    // Search Functionality
+    function handleSearch() {
+        const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
+        loadProductsTable(searchTerm);
+    }
+
+    // Load Products Table
+    function loadProductsTable(searchTerm = '') {
+        const products = JSON.parse(localStorage.getItem('warrantyProducts'));
+        const filteredProducts = searchTerm 
+            ? products.filter(p => 
+                p.customerName.toLowerCase().includes(searchTerm) || 
+                p.product.toLowerCase().includes(searchTerm))
+            : products;
+        
+        const tableBody = document.getElementById('productsTableBody');
+        tableBody.innerHTML = '';
+        
+        if (filteredProducts.length === 0) {
+            document.getElementById('emptyProductsState').style.display = 'block';
+            return;
+        } else {
+            document.getElementById('emptyProductsState').style.display = 'none';
+        }
+        
+        filteredProducts.forEach(product => {
+            const row = document.createElement('tr');
+            
+            // Determine status
+            const expiryDate = new Date(product.expiryDate);
+            const status = getWarrantyStatus(expiryDate);
+            let statusBadge = '';
+            
+            if (status === 'active') {
+                statusBadge = '<span class="status status-active">Active</span>';
+            } else if (status === 'warning') {
+                statusBadge = '<span class="status status-warning">Expiring Soon</span>';
+            } else {
+                statusBadge = '<span class="status status-expired">Expired</span>';
             }
+            
+            row.innerHTML = `
+                <td>${product.customerName}</td>
+                <td>${product.product}</td>
+                <td>${product.formattedSaleDate}</td>
+                <td>${product.warrantyPeriod} months</td>
+                <td>${product.formattedExpiryDate}</td>
+                <td>${statusBadge}</td>
+                <td>
+                    <button class="btn btn-secondary btn-sm delete-btn" data-id="${product.id}">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </td>
+            `;
+            
+            tableBody.appendChild(row);
         });
-
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-
-        const result = await response.json();
         
-        if (result.status === 'error') {
-            throw new Error(result.message);
-        }
-        
-        showNotification('Warranty record added successfully!');
-        warrantyForm.reset();
-        
-        // Refresh data if on view tab
-        if (document.querySelector('.tab.active').getAttribute('data-tab') === 'view') {
-            loadWarrantyData();
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        showNotification(`Error saving record: ${error.message}`, true);
-    }
-});
-
-// Search functionality
-searchBtn.addEventListener('click', () => {
-    const searchTerm = searchInput.value.trim().toLowerCase();
-    
-    if (searchTerm === '') {
-        searchResults.innerHTML = '<p class="no-results">Please enter a search term</p>';
-        return;
-    }
-    
-    const filteredData = warrantyData.filter(item => 
-        item.customerName?.toLowerCase().includes(searchTerm) || 
-        item.product?.toLowerCase().includes(searchTerm)
-    );
-    
-    displaySearchResults(filteredData);
-});
-
-// Filter functionality
-filterBtn.addEventListener('click', () => {
-    const filterTerm = filterInput.value.trim().toLowerCase();
-    filterWarrantyData(filterTerm);
-});
-
-// Refresh data
-refreshBtn.addEventListener('click', () => {
-    loadWarrantyData();
-});
-
-// Load initial data
-document.addEventListener('DOMContentLoaded', () => {
-    loadWarrantyData();
-});
-
-// Main data loading function
-async function loadWarrantyData() {
-    try {
-        showNotification('Loading warranty data...');
-        
-        // First try regular fetch with CORS
-        try {
-            const response = await fetch(`${scriptURL}?rand=${Math.random()}`, {
-                headers: {
-                    'Accept': 'application/json'
+        // Add event listeners to delete buttons
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (confirm('Are you sure you want to delete this product?')) {
+                    const productId = this.getAttribute('data-id');
+                    let products = JSON.parse(localStorage.getItem('warrantyProducts'));
+                    products = products.filter(p => p.id !== productId);
+                    localStorage.setItem('warrantyProducts', JSON.stringify(products));
+                    loadProductsTable(document.getElementById('searchInput').value.trim().toLowerCase());
+                    showToast('Product deleted successfully!', 'success');
                 }
             });
-            
-            if (response.ok) {
-                warrantyData = await response.json();
-                displayAllWarrantyData(warrantyData);
-                showNotification('Data loaded successfully');
-                return;
+        });
+    }
+
+    // CSV Export
+    function exportToCsv() {
+        const products = JSON.parse(localStorage.getItem('warrantyProducts'));
+        let csvContent = "Customer Name,Product,Sale Date,Warranty Period,Expiry Date,Status\n";
+        
+        products.forEach(product => {
+            csvContent += `"${product.customerName}","${product.product}","${product.saleDate}","${product.warrantyPeriod}","${product.expiryDate}","${getWarrantyStatus(new Date(product.expiryDate))}"\n`;
+        });
+        
+        downloadFile('warranty-data.csv', csvContent);
+        showToast('Data exported to CSV file!', 'success');
+    }
+
+    // CSV Import
+    function handleCsvImport(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const csvData = e.target.result;
+                const products = parseCsv(csvData);
+                
+                if (products && products.length > 0) {
+                    localStorage.setItem('warrantyProducts', JSON.stringify(products));
+                    showToast(`${products.length} products imported successfully!`, 'success');
+                    loadProductsTable();
+                }
+            } catch (error) {
+                showToast('Error importing CSV file. Please check the format.', 'error');
+                console.error(error);
             }
-        } catch (fetchError) {
-            console.log('Regular fetch failed, trying JSONP...', fetchError);
+        };
+        reader.readAsText(file);
+    }
+
+    function parseCsv(csv) {
+        const lines = csv.split('\n');
+        const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim());
+        const products = [];
+        
+        for (let i = 1; i < lines.length; i++) {
+            if (!lines[i].trim()) continue;
+            
+            const values = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
+                                 .map(v => v.replace(/^"|"$/g, '').trim());
+            
+            if (values.length >= 5) {
+                const saleDate = new Date(values[2]);
+                const warrantyPeriod = parseInt(values[3]);
+                const expiryDate = new Date(saleDate);
+                expiryDate.setMonth(saleDate.getMonth() + warrantyPeriod);
+                
+                products.push({
+                    id: Date.now().toString() + i,
+                    customerName: values[0],
+                    product: values[1],
+                    saleDate: values[2],
+                    formattedSaleDate: formatDate(saleDate),
+                    warrantyPeriod: warrantyPeriod,
+                    expiryDate: expiryDate.toISOString().split('T')[0],
+                    formattedExpiryDate: formatDate(expiryDate),
+                    status: getWarrantyStatus(expiryDate)
+                });
+            }
         }
         
-        // If fetch fails, try JSONP approach
-        await loadDataWithJsonp();
-        
-    } catch (error) {
-        console.error('Error loading warranty data:', error);
-        showNotification('Error loading warranty data!', true);
+        return products;
     }
-}
 
-// JSONP fallback for loading data
-function loadDataWithJsonp() {
-    return new Promise((resolve, reject) => {
-        const callbackName = 'handleWarrantyData' + new Date().getTime();
-        const url = `${scriptURL}?callback=${callbackName}&rand=${Math.random()}`;
+    function downloadFile(filename, content) {
+        const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    // Google Sheets Integration
+    function initGoogleAPI() {
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = 'https://apis.google.com/js/api.js';
+            script.onload = () => {
+                gapi.load('client:auth2', {
+                    callback: () => resolve(initClient()),
+                    onerror: (err) => reject(err),
+                    timeout: 5000,
+                    ontimeout: () => reject(new Error('Timeout loading Google API'))
+                });
+            };
+            script.onerror = () => reject(new Error('Failed to load Google API script'));
+            document.body.appendChild(script);
+        });
+    }
+
+    function initClient() {
+        return gapi.client.init({
+            apiKey: CONFIG.apiKey,
+            clientId: CONFIG.clientId,
+            scope: CONFIG.scopes,
+            discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4']
+        }).then(() => {
+            console.log('Google API initialized');
+            googleAuth = gapi.auth2.getAuthInstance();
+            googleAuth.isSignedIn.listen(updateSigninStatus);
+            updateSigninStatus(googleAuth.isSignedIn.get());
+            return googleAuth;
+        });
+    }
+
+    function updateSigninStatus(isSignedIn) {
+        if (isSignedIn) {
+            authModal.style.display = 'none';
+        }
+    }
+
+    function handleAuthClick() {
+        if (!googleAuth) {
+            initGoogleAPI().then(() => {
+                googleAuth.signIn();
+            }).catch(err => {
+                console.error('Initialization error:', err);
+            });
+        } else {
+            googleAuth.signIn();
+        }
+    }
+
+    async function saveToGoogleSheets() {
+        if (!googleAuth || !googleAuth.isSignedIn.get()) {
+            authModal.style.display = 'block';
+            return;
+        }
         
-        const script = document.createElement('script');
-        script.src = url;
+        const products = JSON.parse(localStorage.getItem('warrantyProducts'));
+        const values = products.map(p => [
+            p.customerName,
+            p.product,
+            p.saleDate,
+            p.warrantyPeriod,
+            p.expiryDate,
+            p.status
+        ]);
         
-        window[callbackName] = function(data) {
-            warrantyData = data;
-            displayAllWarrantyData(warrantyData);
-            document.body.removeChild(script);
-            delete window[callbackName];
-            resolve();
-        };
+        // Add headers
+        values.unshift(['Customer Name', 'Product', 'Sale Date', 'Warranty Period', 'Expiry Date', 'Status']);
         
-        script.onerror = () => {
-            document.body.removeChild(script);
-            delete window[callbackName];
-            reject(new Error('Failed to load data via JSONP'));
-        };
+        try {
+            await gapi.client.sheets.spreadsheets.values.update({
+                spreadsheetId: CONFIG.spreadsheetId,
+                range: 'A1',
+                valueInputOption: 'RAW',
+                resource: { values }
+            });
+            showToast('Data saved to Google Sheets!', 'success');
+        } catch (error) {
+            console.error('Error saving to Google Sheets:', error);
+            showToast('Error saving to Google Sheets', 'error');
+        }
+    }
+
+    async function loadFromGoogleSheets() {
+        if (!googleAuth || !googleAuth.isSignedIn.get()) {
+            authModal.style.display = 'block';
+            return;
+        }
         
-        document.body.appendChild(script);
-        
-        // Set timeout in case the request hangs
-        setTimeout(() => {
-            if (window[callbackName]) {
-                document.body.removeChild(script);
-                delete window[callbackName];
-                reject(new Error('Timeout loading data'));
+        try {
+            const response = await gapi.client.sheets.spreadsheets.values.get({
+                spreadsheetId: CONFIG.spreadsheetId,
+                range: 'A2:F'
+            });
+            
+            const values = response.result.values;
+            if (!values || values.length === 0) {
+                showToast('No data found in Google Sheets', 'error');
+                return;
             }
-        }, 10000);
-    });
-}
-
-// Display all warranty data in table
-function displayAllWarrantyData(data) {
-    warrantyTableBody.innerHTML = '';
-    
-    if (!data || data.length === 0) {
-        warrantyTableBody.innerHTML = '<tr><td colspan="5" class="no-results">No warranty records found</td></tr>';
-        return;
+            
+            const products = values.map(row => {
+                const saleDate = new Date(row[2]);
+                const expiryDate = new Date(row[4]);
+                
+                return {
+                    id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+                    customerName: row[0],
+                    product: row[1],
+                    saleDate: row[2],
+                    formattedSaleDate: formatDate(saleDate),
+                    warrantyPeriod: parseInt(row[3]),
+                    expiryDate: row[4],
+                    formattedExpiryDate: formatDate(expiryDate),
+                    status: getWarrantyStatus(expiryDate)
+                };
+            });
+            
+            localStorage.setItem('warrantyProducts', JSON.stringify(products));
+            loadProductsTable();
+            showToast('Data loaded from Google Sheets!', 'success');
+        } catch (error) {
+            console.error('Error loading from Google Sheets:', error);
+            showToast('Error loading from Google Sheets', 'error');
+        }
     }
-    
-    data.forEach(item => {
-        const row = document.createElement('tr');
-        const today = new Date();
-        const expiryDate = new Date(item.expiryDate);
-        const isExpired = today > expiryDate;
-        const daysRemaining = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
-        
-        row.innerHTML = `
-            <td>${item.customerName || 'N/A'}</td>
-            <td>${item.product || 'N/A'}</td>
-            <td>${formatDate(item.saleDate)}</td>
-            <td>${formatDate(item.expiryDate)}</td>
-            <td>
-                <span class="status ${isExpired ? 'expired' : 'active'}">
-                    ${isExpired ? 'Expired' : `Active (${daysRemaining} days left)`}
-                </span>
-            </td>
-        `;
-        
-        warrantyTableBody.appendChild(row);
-    });
-}
 
-// Filter warranty data
-function filterWarrantyData(filterTerm) {
-    if (!filterTerm) {
-        displayAllWarrantyData(warrantyData);
-        return;
-    }
-    
-    const filteredData = warrantyData.filter(item => 
-        item.customerName?.toLowerCase().includes(filterTerm) || 
-        item.product?.toLowerCase().includes(filterTerm)
-    );
-    
-    displayAllWarrantyData(filteredData);
-}
-
-// Display search results
-function displaySearchResults(results) {
-    if (!results || results.length === 0) {
-        searchResults.innerHTML = '<p class="no-results">No matching records found</p>';
-        return;
-    }
-    
-    let html = '<div class="results-container">';
-    
-    results.forEach(item => {
-        const today = new Date();
-        const expiryDate = new Date(item.expiryDate);
-        const isExpired = today > expiryDate;
-        const daysRemaining = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
-        
-        html += `
-            <div class="result-card">
-                <h3>${item.customerName || 'N/A'}</h3>
-                <p><strong>Product:</strong> ${item.product || 'N/A'}</p>
-                <p><strong>Sale Date:</strong> ${formatDate(item.saleDate)}</p>
-                <p><strong>Warranty Expiry:</strong> ${formatDate(item.expiryDate)}</p>
-                <p><strong>Status:</strong> 
-                    <span class="status ${isExpired ? 'expired' : 'active'}">
-                        ${isExpired ? 'Expired' : `Active (${daysRemaining} days left)`}
-                    </span>
-                </p>
-            </div>
-        `;
-    });
-    
-    html += '</div>';
-    searchResults.innerHTML = html;
-}
-
-// Format date for display
-function formatDate(dateString) {
-    if (!dateString) return 'N/A';
-    
-    try {
-        const options = { year: 'numeric', month: 'short', day: 'numeric' };
-        return new Date(dateString).toLocaleDateString('en-US', options);
-    } catch (e) {
-        return dateString; // Return raw string if date parsing fails
-    }
-}
-
-// Show notification to user
-function showNotification(message, isError = false) {
-    notification.textContent = message;
-    notification.className = 'notification';
-    notification.classList.add(isError ? 'error' : 'show');
-    
-    if (isError) {
-        notification.classList.add('error');
-    }
-    
-    notification.classList.add('show');
-    
-    setTimeout(() => {
-        notification.classList.remove('show');
-    }, 3000);
-}
-
-               fetch(scriptURL, {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify(formData)
-})      
-</script>        
+    // Add export CSV button event listener
+    document.getElementById('exportCsv').addEventListener('click', exportToCsv);
+});</script>
 </body>
 </html>
