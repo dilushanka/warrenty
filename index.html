@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <div class="container">
+        <div class="container">
         <header>
             <h1>Mobile Accessories Warranty Tracker</h1>
             <p>Simple warranty management for your shop</p>
@@ -36,8 +36,13 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="warrantyPeriod">Warranty Period (months)</label>
-                    <input type="number" id="warrantyPeriod" required min="1" value="12">
+                    <label for="warrantyPeriod">Warranty Period</label>
+                    <select id="warrantyPeriod" required>
+                        <option value="1">1 Month</option>
+                        <option value="3">3 Months</option>
+                        <option value="6">6 Months</option>
+                        <option value="12" selected>12 Months</option>
+                    </select>
                 </div>
                 
                 <button type="submit" class="btn btn-primary">
@@ -51,7 +56,7 @@
                 <h2 class="card-title">Warranty Products</h2>
                 <div class="action-buttons">
                     <button class="btn btn-secondary" id="exportCsv">
-                        <i class="fas fa-file-import"></i> Export CSV
+                        <i class="fas fa-file-export"></i> Export CSV
                     </button>
                     <button class="btn btn-secondary" id="importCsv">
                         <i class="fas fa-file-import"></i> Import CSV
@@ -113,7 +118,7 @@
         </div>
     </div>
     
-    <div id="toast" class="toast">
+    <div id="toast" class="toast" style="display: none;">
         <i class="fas fa-check-circle"></i>
         <span id="toastMessage">Product registered successfully!</span>
     </div>
