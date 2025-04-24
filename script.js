@@ -6,17 +6,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!localStorage.getItem('deletedProducts')) {
             localStorage.setItem('deletedProducts', JSON.stringify([]));
         }
-
-        // DOM Elements
-        const registerForm = document.getElementById('registerForm');
-        const searchBtn = document.getElementById('searchBtn');
-        const importCsvBtn = document.getElementById('importCsv');
-        const csvFileInput = document.getElementById('csvFileInput');
-        const saveToSheetsBtn = document.getElementById('saveToSheets');
-        const loadFromSheetsBtn = document.getElementById('loadFromSheets');
-        const authModal = document.getElementById('authModal');
-        const authButton = document.getElementById('authButton');
-        const closeModal = document.querySelector('.close');
         
         // Configuration
         const CONFIG = {
@@ -128,6 +117,16 @@ document.addEventListener('DOMContentLoaded', function() {
             loadProductsTable();
             autoSaveToSheets();
         }
+        // DOM Elements
+        const registerForm = document.getElementById('registerForm');
+        const searchBtn = document.getElementById('searchBtn');
+        const importCsvBtn = document.getElementById('importCsv');
+        const csvFileInput = document.getElementById('csvFileInput');
+        const saveToSheetsBtn = document.getElementById('saveToSheets');
+        const loadFromSheetsBtn = document.getElementById('loadFromSheets');
+        const authModal = document.getElementById('authModal');
+        const authButton = document.getElementById('authButton');
+        const closeModal = document.querySelector('.close');
 
         function loadProductsTable(searchTerm = '') {
             const products = JSON.parse(localStorage.getItem('warrantyProducts'));
