@@ -1,4 +1,3 @@
-<script>
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize local storage if empty
     if (!localStorage.getItem('warrantyProducts')) {
